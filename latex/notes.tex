@@ -1,7 +1,17 @@
 \section{Oddities in the data}
 
+\subsection{COW war participants list}
+
 The COW war participants list has two sets of start and end periods for each participant. Mostly the second set is missing, and in those cases where it is not, the second start period is always in the same year or the year after the first end year. So I just used the second end year where applicable.
 
 A given country can also appear more than once in the same war as a participant. Italy during WW2 for example appear twice, once on the Axis side, once on the Allied side. This is preserved in the data.
 
 Material capability variables for a given year are created using the previous year's values. Creating accurate material capability ratios is challenging since participants may enter a war that is already ongoing, and because the set of participants on any given side at any given time may change if previous participants leave.
+
+\subsection{Polity}
+
+Several regimes were coded with different country codes outside the COW standard codes in the Polity data. For example, Austria-Hungary has COW code 300, while Polity gives it 305, the same code as Austria. The information is correctly coded, there is just a mismatch between country codes.
+
+In a few other cases, polity did not assign values for country-years that according to the COW state system membership data should exist. Latvia is coded in the polity data from 1920 on, but is coded as participating in war from 1917 on. Alternatively, some of these missing cases are due to a one-year lag in a variables for states that engaged in war during the first year of their existence, like Israel. In total this occurred in 7 cases: Two Sicilies 1861, Egypt 1881--1882, Latvia 1917--1919, Angola 1974, India 1946--1950, Pakistan 1946, Israel 1947. I use the closest available polity score, which is usually within a year or two. For Egypt I use 1922 polity values.
+
+For 4 cases there was no Polity information at all: the German states of Hanover, Electorate of Hesse, Grand Duchy of Hesse, and Mecklenburg-Schwerin during the Seven Weeks War between Prussia and Austria. Four of the five minor German states coded by Polity for this period have a polity score of -7 (the other is -4), so I assigned -7 for all four missing cases.

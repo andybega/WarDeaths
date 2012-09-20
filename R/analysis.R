@@ -8,6 +8,10 @@
 # <http://andybeger.wordpress.com>
 ###########
 
+############
+# Rough plot of dead per year
+#
+############
 
 part.year$duration <- part.year$end - part.year$start + 1
 part.year$dead.per.year <- ifelse(part.year$year < part.year$start, 0, 
@@ -20,3 +24,12 @@ rm(year)
 dead.per.year[is.na(dead.per.year$x), "x"] <- 0
 dead.per.year <- ts(dead.per.year, start=1816)
 plot(dead.per.year[, "x"])
+
+############
+# DV characteristics
+#
+############
+
+hist(log(war.part$BatDeath))
+
+glm.nb(BatDeath ~ 1, data=war.part)
