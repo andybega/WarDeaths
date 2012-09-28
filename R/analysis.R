@@ -8,6 +8,11 @@
 # <http://andybeger.wordpress.com>
 ###########
 
+library(ggplot2)
+library(MASS)
+
+if (!exists('war.part')) load('data/war_part.RData')
+
 ############
 # Rough plot of dead per year
 #
@@ -30,6 +35,45 @@ plot(dead.per.year[, "x"])
 #
 ############
 
-hist(log(war.part$BatDeath))
+# Fit normal to log10 y using MLE
+fitdistr(as.numeric(na.omit(log10(war.part$BatDeath[war.part$BatDeath>0]))), 'normal')
+
+# Plot histogram with fitted normal
+p <- ggplot(data=war.part, aes(BatDeath)) 
+p <- p + geom_histogram(aes(y=..density..), binwidth=0.2, color='black', fill='white') + 
+  stat_function(fun=dnorm, color='black', arg=list(mean=3.48, sd=1.16)) +
+  scale_x_log10() 
+p
+
+############
+# Models
+#
+############
+
+war.part <- subset(war.part, complete.cases(war.part))
+
+log.lm <- lm(log10(BatDeath + 1) ~ polity.l1 + log(milper.l1) + log(milex.l1) + log(tpop.l1) + log(milper.l1.side) + log(tpop.l1.side), data=war.part)
+
+# Fitted values
+pred.lm <- predict(log.lm, level=0.8, interval='confidence')
+pred.lm <- round(10^pred.lm)
+
+# combine
+war.part <- cbind(war.part, pred.lm)
+
+# Label and ordering variable
+war.part$label <- with(war.part, factor(partID, levels=partID[order(BatDeath)]))
+
+# Plot fitted range vs. observed values.
+p <- ggplot(war.part) +
+  geom_pointrange(aes(x=label, y=fit, ymin=lwr, ymax=upr)) +
+  geom_point(aes(x=label, y=BatDeath), color='blue') +
+  scale_y_log10(name='log10 fitted values') + scale_x_discrete(name='') +
+  theme(axis.text.x=element_text(angle=90))
+  
+p
+
+
+
 
 glm.nb(BatDeath ~ 1, data=war.part)
