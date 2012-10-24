@@ -52,7 +52,17 @@ p
 
 war.part <- subset(war.part, complete.cases(war.part))
 
-log.lm <- lm(log10(BatDeath + 1) ~ polity.l1 + log(milper.l1) + log(milex.l1) + log(tpop.l1) + log(milper.l1.side) + log(tpop.l1.side), data=war.part)
+# temp relative ratio
+log.milper.r <-  log(war.part$milper.ratio/(1-war.part$milper.ratio))
+log.milex.r <- log(war.part$milex.ratio/(1-war.part$milex.ratio))
+log.tpop.r <- log(war.part$tpop.ratio/(1-war.part$tpop.ratio))
+
+log.lm <- lm(log10(BatDeath + 1) ~ polity.l1 + log(milper.l1) + log(milex.l1) + 
+  log(tpop.l1) + log(milper.l1.side) + log(tpop.l1.side) + log(tpop.l1.total) + 
+  log(milper.l1.total) + states.total + log.milper.r + log.milex.r, 
+             data=war.part)
+
+summary(log.lm)
 
 # Fitted values
 pred.lm <- predict(log.lm, level=0.8, interval='confidence')

@@ -160,8 +160,22 @@ part.year <- ddply(part.year, .(WarNum, year, Side), transform, milper.l1.side=s
 part.year <- ddply(part.year, .(WarNum, year, Side), transform, milex.l1.side=sum(milex.l1))
 part.year <- ddply(part.year, .(WarNum, year, Side), transform, tpop.l1.side=sum(tpop.l1))
 
-## Ratios
+## Total capabilities by war-year (used for construction cap ratios)
+part.year <- ddply(part.year, .(WarNum, year), transform, milper.l1.total=sum(milper.l1))
+part.year <- ddply(part.year, .(WarNum, year), transform, milex.l1.total=sum(milex.l1))
+part.year <- ddply(part.year, .(WarNum, year), transform, tpop.l1.total=sum(tpop.l1))
 
+## Power share (a/(a+b))
+part.year$milper.ratio <- with(part.year, milper.l1.side/milper.l1.total)
+part.year$milex.ratio <- with(part.year, milex.l1.side/milex.l1.total)
+part.year$tpop.ratio <- with(part.year, tpop.l1.side/tpop.l1.total)
+
+# Convert to relative ratios (i.e. a/b)
+part.year$milper.ratio <- war.part$milper.ratio/(1-war.part$milper.ratio)
+part.year$milex.ratio <- war.part$milex.ratio/(1-war.part$milex.ratio)
+part.year$tpop.ratio <- war.part$tpop.ratio/(1-war.part$tpop.ratio)
+
+# consider adding ratio relative to other side, i.e. ratio/(1-ratio)
 
 # Test case Crimean War
 # test <- subset(part.year, WarNum==22)
@@ -172,19 +186,20 @@ part.year <- ddply(part.year, .(WarNum, year, Side), transform, tpop.l1.side=sum
 ##########
 
 # Subset part.year and merge
-merge.vars <- c('partID', 'year', "irst", "milex", "milper", "pec", "tpop", 
-                "upop", "cinc", "polity.l1", 'milper.l1', 'milex.l1', 'tpop.l1',
-                'states.side', 'states.total', 'milper.l1.side', 
-                'milex.l1.side', 'tpop.l1.side'
-                )
+merge.vars <- !colnames(part.year) %in% c(
+  'WarNum', 'WarName', 'start', 'end', 'ccode', 'StateName', 'part.start', 
+  'part.end', 'Side', 'Initiator', 'BatDeath')
+  
 merge.data <- subset(part.year, select=merge.vars)
 war.part$year <- war.part$part.start
 war.part <- merge(war.part, merge.data, by=c('partID', 'year'), type='left')
 war.part <- subset(war.part, select=-year)
 war.part <- war.part[with(war.part, order(WarNum, Side, part.start, ccode)), ]
 
-save(war.part, file='data/war_part.RData')
-save.image(file='data/workspace.RData')
+# test.part <- subset(war.part, WarNum==22)
+
+save(war.part, file='data/war_part.Rdata')
+save.image(file='data/data_workspace.Rdata')
 ## end
 
 # need to look at imputation

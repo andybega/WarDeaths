@@ -1,4 +1,3 @@
-*.Rproj
-.Rproj*
 .DS*
 .Rhistory
+.Rproj.*
